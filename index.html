@@ -1,0 +1,467 @@
+﻿<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LiteBudget</title>
+    <style>
+        :root {
+            font-family: system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif
+        }
+
+        body {
+            margin: 0;
+            padding: 12px;
+            background: #f7f7f8;
+            color: #111;
+            max-width: 380px;
+        }
+
+        header {
+            /*display: flex;*/
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 8px
+        }
+
+        label {
+            font-size: 13px;
+            display: block;
+            margin-top: 6px;
+            text-align:center;
+        }
+
+        input, select, button, textarea {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #e2e2e5;
+            border-radius: 8px;
+            font-size: 15px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px
+        }
+
+            .row > * {
+                flex: 1
+            }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f2
+        }
+
+        .muted {
+            font-size: 12px;
+            color: #666
+        }
+
+        .btn {
+            cursor: pointer
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px
+        }
+
+        .tiny {
+            font-size: 12px;
+            padding: 6px
+        }
+
+        .amount {
+            font-weight: 700;
+        }
+
+        .negative {
+            color: #c94242
+        }
+
+        .positive {
+            color: #2a9d40
+        }
+
+        .stats {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .stat {
+            background: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            /*min-width: 120px;*/
+            width: 30vw;
+            text-align: center
+        }
+
+        .label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .plus-btn {
+            padding: 6px 10px;
+            font-size: 18px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="stats">
+            <div class="stat">
+                <div class="label">今週 (月曜～)</div>
+                <div id="weekSpent">¥0</div>
+            </div>
+            <div class="stat">
+                <div class="label">今月 (1日～)</div>
+                <div id="monthSpent">¥0</div>
+            </div>
+            <div class="stat">
+                <div class="label">残高</div>
+                <div id="balance">¥0</div>
+            </div>
+        </div>
+    </header>
+
+    <section class="card">
+        <form id="entryForm" autocomplete="off">
+            <div class="row" style="align-items:center">
+                <!-- type=text にして inputmode=numeric を使う（数字キーボードを優先しつつ + を許可） -->
+                <table>
+                    <tr>
+                        <th width="40%">
+                            <input id="amount"
+                                   name="amount"
+                                   type="text"
+                                   inputmode="numeric"
+                                   placeholder="金額"
+                                   autocomplete="off"
+                                   autofocus
+                                   required />
+                        </th>
+                        <th width="10%" style="padding-left:20px;">
+                            <button type="button" id="plusBtn" class="plus-btn">＋</button>
+                        </th>
+                        <th>
+                            <select id="category">
+                                <option value="食費">食費</option>
+                                <option value="交通">交通</option>
+                                <option value="日用品">日用品</option>
+                                <option value="収入">収入</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </th>
+                    </tr>
+                </table>
+
+
+
+            </div>
+            <label><input type="date" id="date" /> <span class="muted"></span></label>
+            <label><input id="note" placeholder="メモ（任意）" /></label>
+            <div style="display:flex;gap:8px;margin-top:8px">
+                <button type="submit" class="btn">追加</button>
+                <button type="button" id="exportBtn" class="btn tiny">CSVエクスポート</button>
+                <button type="button" id="clearBtn" class="btn tiny">全件クリア</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong>直近の記録</strong>
+            <div class="controls">
+                <select id="filterMonth" class="tiny">
+                    <option value="all">すべて</option>
+                </select>
+                <input id="search" placeholder="検索" class="tiny" style="width:120px" />
+            </div>
+        </div>
+        <ul id="list"></ul>
+    </section>
+    <script>
+        (function () {
+            'use strict';
+
+            var KEY = 'litebudget:v1';
+            var form = document.getElementById('entryForm');
+            var amountEl = document.getElementById('amount');
+            var plusBtn = document.getElementById('plusBtn');
+            var catEl = document.getElementById('category');
+            var dateEl = document.getElementById('date');
+            var noteEl = document.getElementById('note');
+            var listEl = document.getElementById('list');
+            var balanceEl = document.getElementById('balance');
+            var exportBtn = document.getElementById('exportBtn');
+            var clearBtn = document.getElementById('clearBtn');
+            var filterMonth = document.getElementById('filterMonth');
+            var searchEl = document.getElementById('search');
+            var weekSpentEl = document.getElementById('weekSpent');
+            var monthSpentEl = document.getElementById('monthSpent');
+
+            // + ボタン：先頭に + を挿入（既に + があれば何もしない）
+            if (plusBtn) {
+                plusBtn.addEventListener('click', function () {
+                    try {
+                        var v = amountEl.value || '';
+                        if (v.charAt(0) === '+') {
+                            try { amountEl.focus(); } catch (e) { }
+                            return;
+                        }
+                        amountEl.value = '+' + v;
+                        try { amountEl.setSelectionRange(amountEl.value.length, amountEl.value.length); } catch (e) { }
+                        try { amountEl.focus(); } catch (e) { }
+                    } catch (e) { }
+                }, false);
+            }
+
+            function todayISO() {
+                var d = new Date();
+                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                return d.toISOString().slice(0, 10);
+            }
+
+            function setDefaultDate() {
+                var iso = todayISO();
+                try {
+                    if ('valueAsDate' in dateEl) {
+                        try { dateEl.valueAsDate = new Date(); } catch (e) { }
+                    }
+                    try { dateEl.value = iso; } catch (e) { }
+                    try { dateEl.setAttribute('value', iso); } catch (e) { }
+                    setTimeout(function () {
+                        try { dateEl.valueAsDate = new Date(); } catch (e) { }
+                        try { dateEl.value = iso; } catch (e) { }
+                        try { dateEl.setAttribute('value', iso); } catch (e) { }
+                    }, 50);
+                } catch (e) {
+                    try { dateEl.setAttribute('value', iso); } catch (e) { }
+                }
+            }
+
+            function load() {
+                try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; }
+            }
+            function save(items) { localStorage.setItem(KEY, JSON.stringify(items)); }
+
+            function parseYMD(ymd) {
+                var parts = (ymd || '').split('-');
+                var y = parseInt(parts[0], 10) || 0;
+                var m = parseInt(parts[1], 10) || 1;
+                var d = parseInt(parts[2], 10) || 1;
+                return new Date(y, m - 1, d);
+            }
+
+            function getMonday(d) {
+                var day = d.getDay();
+                var diff = (day === 0 ? -6 : 1) - day;
+                var m = new Date(d);
+                m.setDate(d.getDate() + diff);
+                m.setHours(0, 0, 0, 0);
+                return m;
+            }
+
+            function sumExpensesBetween(items, fromDateInclusive, toDateInclusive) {
+                var total = 0;
+                for (var i = 0; i < items.length; i++) {
+                    var it = items[i];
+                    var dt = parseYMD(it.date);
+                    if (isNaN(dt)) continue;
+                    if (dt >= fromDateInclusive && dt <= toDateInclusive) {
+                        if (Number(it.amount) < 0) total += Math.abs(Number(it.amount));
+                    }
+                }
+                return total;
+            }
+
+            function computeAndShowStats() {
+                var items = load();
+                var net = 0;
+                for (var i = 0; i < items.length; i++) net += Number(items[i].amount);
+                balanceEl.textContent = '¥' + Number(net).toLocaleString();
+
+                var today = new Date();
+                var monday = getMonday(today);
+                var sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+                sunday.setHours(23, 59, 59, 999);
+                var weekSum = sumExpensesBetween(items, monday, sunday);
+                weekSpentEl.textContent = '¥' + Number(weekSum).toLocaleString();
+
+                var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                startOfMonth.setHours(0, 0, 0, 0);
+                var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                endOfMonth.setHours(23, 59, 59, 999);
+                var monthSum = sumExpensesBetween(items, startOfMonth, endOfMonth);
+                monthSpentEl.textContent = '¥' + Number(monthSum).toLocaleString();
+            }
+
+            function render() {
+                var q = (searchEl.value || '').toLowerCase();
+                var items = load().slice().reverse();
+                var mf = filterMonth.value;
+                listEl.innerHTML = '';
+                var sum = 0;
+                for (var i = 0; i < items.length; i++) {
+                    var it = items[i];
+                    if (mf !== 'all' && it.date.slice(0, 7) !== mf) continue;
+                    if (q && (String(it.note || '').toLowerCase().indexOf(q) === -1) && (String(it.category || '').toLowerCase().indexOf(q) === -1)) continue;
+                    var li = document.createElement('li');
+                    var left = document.createElement('div');
+                    left.innerHTML = '<div>' + it.date + ' <span class="muted">• ' + it.category + '</span></div><div class="muted">' + (it.note || '') + '</div>';
+                    var amt = document.createElement('div');
+                    amt.className = 'amount ' + (it.amount < 0 ? 'negative' : 'positive');
+                    amt.textContent = (it.amount < 0 ? '-' : '+') + '¥' + Math.abs(parseInt(it.amount)).toLocaleString();
+                    var del = document.createElement('button');
+                    del.textContent = '削除';
+                    del.className = 'tiny';
+                    (function (id) { del.addEventListener('click', function () { remove(id); }, false); })(it.id);
+                    li.appendChild(left);
+                    var right = document.createElement('div');
+                    right.style.textAlign = 'right';
+                    right.appendChild(amt);
+                    var wrap = document.createElement('div');
+                    wrap.appendChild(del);
+                    right.appendChild(wrap);
+                    li.appendChild(right);
+                    listEl.appendChild(li);
+                    sum += Number(it.amount);
+                }
+                balanceEl.textContent = '¥' + Number(sum).toLocaleString();
+                computeAndShowStats();
+            }
+
+            function ensureMonthOptions() {
+                var items = load();
+                var months = {};
+                for (var i = 0; i < items.length; i++) {
+                    var m = (items[i].date || '').slice(0, 7);
+                    if (m) months[m] = true;
+                }
+                filterMonth.innerHTML = '<option value=\"all\">すべて</option>';
+                var arr = [];
+                for (var k in months) arr.push(k);
+                arr.sort(); arr.reverse();
+                for (var j = 0; j < arr.length; j++) {
+                    var o = document.createElement('option');
+                    o.value = arr[j]; o.textContent = arr[j];
+                    filterMonth.appendChild(o);
+                }
+            }
+
+            function addEntryFromString(amountStr, category, date, note) {
+                amountStr = (amountStr || '').trim();
+                if (!amountStr) { alert('金額を入力してください'); return null; }
+
+                let value;
+                if (amountStr.startsWith('+')) {
+                    const n = Number(amountStr.slice(1).replace(/,/g, '')); // +を除去してNumberに
+                    if (isNaN(n)) { alert('金額の形式が不正です'); return null; }
+                    value = Math.abs(n); // income as positive
+                } else if (amountStr.startsWith('-')) {
+                    const n = Number(amountStr.slice(1).replace(/,/g, ''));
+                    if (isNaN(n)) { alert('金額の形式が不正です'); return null; }
+                    value = -Math.abs(n);
+                } else {
+                    const n = Number(amountStr.replace(/,/g, ''));
+                    if (isNaN(n)) { alert('金額の形式が不正です'); return null; }
+                    value = -Math.abs(n); // default: expense
+                }
+
+                const items = load();
+                const entry = { id: Date.now() + Math.random(), amount: value, category, date, note };
+                items.push(entry);
+                save(items);
+                return entry;
+            }
+
+
+            function remove(id) {
+                var items = load().filter(function (x) { return x.id !== id; });
+                save(items);
+                ensureMonthOptions();
+                render();
+            }
+
+            function tryFocusAmount() {
+                try { amountEl.focus(); } catch (e) { }
+            }
+
+            window.addEventListener('load', function () { setTimeout(tryFocusAmount, 80); setTimeout(tryFocusAmount, 300); }, false);
+            function onFirstUserTouch() { tryFocusAmount(); document.removeEventListener('touchstart', onFirstUserTouch, false); document.removeEventListener('click', onFirstUserTouch, false); }
+            document.addEventListener('touchstart', onFirstUserTouch, false);
+            document.addEventListener('click', onFirstUserTouch, false);
+
+            document.addEventListener('DOMContentLoaded', function () {
+                setDefaultDate();
+                ensureMonthOptions();
+                render();
+            }, false);
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var amtStr = amountEl.value;
+                if (amtStr === null || String(amtStr).trim() === '') return;
+                var dateVal = dateEl.value || todayISO();
+                var noteVal = (noteEl.value || '').trim();
+                var entry = addEntryFromString(amtStr, catEl.value, dateVal, noteVal);
+                if (!entry) return;
+                amountEl.value = '';
+                noteEl.value = '';
+                try { amountEl.focus(); } catch (e) { }
+                ensureMonthOptions();
+                render();
+            }, false);
+
+            exportBtn.addEventListener('click', function () {
+                var items = load();
+                if (!items.length) { alert('データがありません'); return; }
+                var rows = [];
+                for (var i = 0; i < items.length; i++) {
+                    var it = items[i];
+                    var cat = String(it.category || '').replace(/\"/g, '\"\"');
+                    var note = String(it.note || '').replace(/\"/g, '\"\"');
+                    rows.push(it.date + ',"' + cat + '",' + it.amount + ',"' + note + '"');
+                }
+                var csv = 'date,category,amount,note\\n' + rows.join('\\n');
+                var blob = new Blob([csv], { type: 'text/csv' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a'); a.href = url; a.download = 'litebudget_export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+            }, false);
+
+            clearBtn.addEventListener('click', function () { if (!confirm('全データを削除しますか？')) return; localStorage.removeItem(KEY); ensureMonthOptions(); render(); }, false);
+            filterMonth.addEventListener('change', render, false);
+            searchEl.addEventListener('input', render, false);
+
+        })();
+    </script>
+</body>
+</html>
