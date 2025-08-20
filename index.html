@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>LiteBudget</title>
+    <title>LiteBudget v2</title>
     <style>
         :root {
             font-family: system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif
@@ -14,14 +14,14 @@
             padding: 12px;
             background: #f7f7f8;
             color: #111;
-            max-width: 380px;
+            width:370px;
         }
 
         header {
-            /*display: flex;*/
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 8px;
         }
 
         h1 {
@@ -40,12 +40,11 @@
         label {
             font-size: 13px;
             display: block;
-            margin-top: 6px;
-            text-align:center;
+            margin-top: 6px
         }
 
         input, select, button, textarea {
-            width: 90%;
+            width: 95%;
             padding: 8px;
             border: 1px solid #e2e2e5;
             border-radius: 8px;
@@ -70,8 +69,10 @@
         li {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 8px 0;
-            border-bottom: 1px solid #f0f0f2
+            border-bottom: 1px solid #f0f0f2;
+            cursor: pointer
         }
 
         .muted {
@@ -94,7 +95,7 @@
         }
 
         .amount {
-            font-weight: 700;
+            font-weight: 700
         }
 
         .negative {
@@ -116,20 +117,39 @@
             padding: 8px;
             border-radius: 8px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-            /*min-width: 120px;*/
-            width: 30vw;
-            text-align: center
+            width:33%;
+            text-align: center;
         }
 
         .label {
             font-size: 12px;
-            color: #666;
+            color: #666
         }
 
         .plus-btn {
             padding: 6px 10px;
             font-size: 18px;
-            border-radius: 8px;
+            border-radius: 8px
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 16px;
+            border-radius: 10px;
+            max-width: 320px;
+            width: 90%
         }
     </style>
 </head>
@@ -137,16 +157,30 @@
     <header>
         <div class="stats">
             <div class="stat">
-                <div class="label">今週 (月曜～)</div>
-                <div id="weekSpent">¥0</div>
+                <div class="label">今週の支出</div>
+                <div id="weekSpentInc">¥0</div>
             </div>
             <div class="stat">
-                <div class="label">今月 (1日～)</div>
-                <div id="monthSpent">¥0</div>
+                <div class="label">今月の支出</div>
+                <div id="monthSpentInc">¥0</div>
             </div>
             <div class="stat">
                 <div class="label">残高</div>
-                <div id="balance">¥0</div>
+                <div id="balanceInc">¥0</div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="label">all</div>
+                <div id="weekSpentAll">¥0</div>
+            </div>
+            <div class="stat">
+                <div class="label">all</div>
+                <div id="monthSpentAll">¥0</div>
+            </div>
+            <div class="stat">
+                <div class="label">all</div>
+                <div id="balanceAll">¥0</div>
             </div>
         </div>
     </header>
@@ -154,42 +188,37 @@
     <section class="card">
         <form id="entryForm" autocomplete="off">
             <div class="row" style="align-items:center">
-                <!-- type=text にして inputmode=numeric を使う（数字キーボードを優先しつつ + を許可） -->
-                <table>
+                <table >
                     <tr>
-                        <th width="40%">
-                            <input id="amount"
-                                   name="amount"
-                                   type="text"
-                                   inputmode="numeric"
-                                   placeholder="金額"
-                                   autocomplete="off"
-                                   autofocus
-                                   required />
+                        <th width="30%">
+                            <input id="amount" name="amount" type="text" inputmode="numeric" placeholder="金額" autocomplete="off" autofocus required />
                         </th>
-                        <th width="10%" style="padding-left:20px;">
+                        <th width="10%" style="padding-left:15px;">
                             <button type="button" id="plusBtn" class="plus-btn">＋</button>
                         </th>
-                        <th>
-                            <select id="category">
+                        <th >
+                            <select id="category1">
                                 <option value="食費">食費</option>
-                                <option value="交通">交通</option>
                                 <option value="日用品">日用品</option>
+                                <option value="医療費">医療費</option>
                                 <option value="収入">収入</option>
                                 <option value="その他">その他</option>
                             </select>
                         </th>
+                        <th>
+                            <select id="category2">
+                                <option value="含む">含む</option>
+                                <option value="含まない">含まない</option>
+                            </select>
+                        </th>
                     </tr>
                 </table>
-
-
-
             </div>
             <label><input type="date" id="date" /> <span class="muted"></span></label>
             <label><input id="note" placeholder="メモ（任意）" /></label>
             <div style="display:flex;gap:8px;margin-top:8px">
                 <button type="submit" class="btn">追加</button>
-                <button type="button" id="exportBtn" class="btn tiny">CSVエクスポート</button>
+                <button type="button" id="exportBtn" class="btn tiny">CSV出力</button>
                 <button type="button" id="clearBtn" class="btn tiny">全件クリア</button>
             </div>
         </form>
@@ -199,268 +228,122 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
             <strong>直近の記録</strong>
             <div class="controls">
-                <select id="filterMonth" class="tiny">
-                    <option value="all">すべて</option>
-                </select>
+                <select id="filterMonth" class="tiny"><option value="all">すべて</option></select>
                 <input id="search" placeholder="検索" class="tiny" style="width:120px" />
             </div>
         </div>
         <ul id="list"></ul>
     </section>
+
+    <!-- 編集モーダル -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>記録を編集</h3>
+            <input id="editAmount" type="text" inputmode="numeric" />
+            <input id="editDate" type="date" />
+            <select id="editCat1"></select>
+            <select id="editCat2"><option value="含む">含む</option><option value="含まない">含まない</option></select>
+            <input id="editNote" placeholder="メモ" />
+            <div style="margin-top:8px;display:flex;gap:8px">
+                <button id="saveEdit" class="btn">保存</button>
+                <button id="cancelEdit" class="btn">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        (function () {
-            'use strict';
+        (() => {
+            const KEY = 'litebudget:v2';
+            const form = document.getElementById('entryForm');
+            const amountEl = document.getElementById('amount');
+            const plusBtn = document.getElementById('plusBtn');
+            const cat1El = document.getElementById('category1');
+            const cat2El = document.getElementById('category2');
+            const dateEl = document.getElementById('date');
+            const noteEl = document.getElementById('note');
+            const listEl = document.getElementById('list');
+            const weekSpentInc = document.getElementById('weekSpentInc');
+            const monthSpentInc = document.getElementById('monthSpentInc');
+            const balanceInc = document.getElementById('balanceInc');
+            const weekSpentAll = document.getElementById('weekSpentAll');
+            const monthSpentAll = document.getElementById('monthSpentAll');
+            const balanceAll = document.getElementById('balanceAll');
+            const filterMonth = document.getElementById('filterMonth');
+            const searchEl = document.getElementById('search');
+            const exportBtn = document.getElementById('exportBtn');
+            const clearBtn = document.getElementById('clearBtn');
 
-            var KEY = 'litebudget:v1';
-            var form = document.getElementById('entryForm');
-            var amountEl = document.getElementById('amount');
-            var plusBtn = document.getElementById('plusBtn');
-            var catEl = document.getElementById('category');
-            var dateEl = document.getElementById('date');
-            var noteEl = document.getElementById('note');
-            var listEl = document.getElementById('list');
-            var balanceEl = document.getElementById('balance');
-            var exportBtn = document.getElementById('exportBtn');
-            var clearBtn = document.getElementById('clearBtn');
-            var filterMonth = document.getElementById('filterMonth');
-            var searchEl = document.getElementById('search');
-            var weekSpentEl = document.getElementById('weekSpent');
-            var monthSpentEl = document.getElementById('monthSpent');
+            const editModal = document.getElementById('editModal');
+            const editAmount = document.getElementById('editAmount');
+            const editDate = document.getElementById('editDate');
+            const editCat1 = document.getElementById('editCat1');
+            const editCat2 = document.getElementById('editCat2');
+            const editNote = document.getElementById('editNote');
+            const saveEdit = document.getElementById('saveEdit');
+            const cancelEdit = document.getElementById('cancelEdit');
+            let editingId = null;
 
-            // + ボタン：先頭に + を挿入（既に + があれば何もしない）
-            if (plusBtn) {
-                plusBtn.addEventListener('click', function () {
-                    try {
-                        var v = amountEl.value || '';
-                        if (v.charAt(0) === '+') {
-                            try { amountEl.focus(); } catch (e) { }
-                            return;
-                        }
-                        amountEl.value = '+' + v;
-                        try { amountEl.setSelectionRange(amountEl.value.length, amountEl.value.length); } catch (e) { }
-                        try { amountEl.focus(); } catch (e) { }
-                    } catch (e) { }
-                }, false);
-            }
+            // category1が医療費ならcategory2を含まないに自動設定（その他は含むのまま）
+            cat1El.addEventListener('change', () => {
+                if (cat1El.value === '医療費') {
+                    cat2El.value = '含まない';
+                }
+            });
+
+            plusBtn.addEventListener('click', () => {
+                if (!amountEl.value.startsWith('+')) amountEl.value = '+' + amountEl.value;
+                amountEl.focus();
+            });
 
             function todayISO() {
-                var d = new Date();
-                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
                 return d.toISOString().slice(0, 10);
             }
 
-            function setDefaultDate() {
-                var iso = todayISO();
-                try {
-                    if ('valueAsDate' in dateEl) {
-                        try { dateEl.valueAsDate = new Date(); } catch (e) { }
-                    }
-                    try { dateEl.value = iso; } catch (e) { }
-                    try { dateEl.setAttribute('value', iso); } catch (e) { }
-                    setTimeout(function () {
-                        try { dateEl.valueAsDate = new Date(); } catch (e) { }
-                        try { dateEl.value = iso; } catch (e) { }
-                        try { dateEl.setAttribute('value', iso); } catch (e) { }
-                    }, 50);
-                } catch (e) {
-                    try { dateEl.setAttribute('value', iso); } catch (e) { }
-                }
+            function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]') } catch (e) { return [] } }
+            function save(items) { localStorage.setItem(KEY, JSON.stringify(items)) }
+            function parseYMD(ymd) { const [y, m, d] = (ymd || '').split('-').map(Number); return new Date(y, m - 1, d) }
+
+            function getMonday(d) { const day = d.getDay(); const diff = (day === 0 ? -6 : 1) - day; const m = new Date(d); m.setDate(d.getDate() + diff); m.setHours(0, 0, 0, 0); return m; }
+            function sumBetween(items, from, to, onlyInc) { let t = 0; for (const it of items) { const dt = parseYMD(it.date); if (isNaN(dt)) continue; if (dt >= from && dt <= to) { if (Number(it.amount) < 0) { if (!onlyInc || it.cat2 === '含む') t += Math.abs(Number(it.amount)); } } } return t; }
+            function computeStats() {
+                const items = load(); const netAll = items.reduce((s, i) => s + Number(i.amount), 0); const netInc = items.reduce((s, i) => s + (i.cat2 === '含む' ? Number(i.amount) : 0), 0);
+                balanceAll.textContent = '¥' + netAll.toLocaleString(); balanceInc.textContent = '¥' + netInc.toLocaleString();
+                const today = new Date(); const mon = getMonday(today); const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23, 59, 59, 999);
+                weekSpentAll.textContent = '¥' + sumBetween(items, mon, sun, false).toLocaleString();
+                weekSpentInc.textContent = '¥' + sumBetween(items, mon, sun, true).toLocaleString();
+                const sm = new Date(today.getFullYear(), today.getMonth(), 1); sm.setHours(0, 0, 0, 0);
+                const em = new Date(today.getFullYear(), today.getMonth() + 1, 0); em.setHours(23, 59, 59, 999);
+                monthSpentAll.textContent = '¥' + sumBetween(items, sm, em, false).toLocaleString();
+                monthSpentInc.textContent = '¥' + sumBetween(items, sm, em, true).toLocaleString();
             }
 
-            function load() {
-                try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; }
-            }
-            function save(items) { localStorage.setItem(KEY, JSON.stringify(items)); }
+            function render() { const q = (searchEl.value || '').toLowerCase(); const items = load().slice().reverse(); listEl.innerHTML = ''; for (const it of items) { if (filterMonth.value !== 'all' && it.date.slice(0, 7) !== filterMonth.value) continue; if (q && !((it.note || '').toLowerCase().includes(q) || it.cat1.toLowerCase().includes(q))) continue; const li = document.createElement('li'); li.innerHTML = `<div>${it.date} <span class="muted">• ${it.cat1}/${it.cat2}</span><div class="muted">${it.note || ''}</div></div><div class="amount ${it.amount < 0 ? 'negative' : 'positive'}">${it.amount < 0 ? '-' : '+'}¥${Math.abs(it.amount).toLocaleString()}</div>`; li.onclick = () => openEdit(it); listEl.appendChild(li); } computeStats(); }
 
-            function parseYMD(ymd) {
-                var parts = (ymd || '').split('-');
-                var y = parseInt(parts[0], 10) || 0;
-                var m = parseInt(parts[1], 10) || 1;
-                var d = parseInt(parts[2], 10) || 1;
-                return new Date(y, m - 1, d);
-            }
+            function ensureMonthOptions() { const items = load(); const months = new Set(items.map(i => i.date.slice(0, 7))); filterMonth.innerHTML = '<option value="all">すべて</option>'; Array.from(months).sort().reverse().forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; filterMonth.appendChild(o) }); }
 
-            function getMonday(d) {
-                var day = d.getDay();
-                var diff = (day === 0 ? -6 : 1) - day;
-                var m = new Date(d);
-                m.setDate(d.getDate() + diff);
-                m.setHours(0, 0, 0, 0);
-                return m;
-            }
+            function addEntryFromString(amountStr, cat1, cat2, date, note) { amountStr = (amountStr || '').trim(); if (!amountStr) { alert('金額を入力してください'); return null } let v; if (amountStr.startsWith('+')) { const n = Number(amountStr.slice(1)); if (isNaN(n)) return null; v = Math.abs(n); } else if (amountStr.startsWith('-')) { const n = Number(amountStr.slice(1)); if (isNaN(n)) return null; v = -Math.abs(n); } else { const n = Number(amountStr); if (isNaN(n)) return null; v = -Math.abs(n); } const items = load(); const entry = { id: Date.now() + Math.random(), amount: v, cat1, cat2, date, note }; items.push(entry); save(items); return entry; }
 
-            function sumExpensesBetween(items, fromDateInclusive, toDateInclusive) {
-                var total = 0;
-                for (var i = 0; i < items.length; i++) {
-                    var it = items[i];
-                    var dt = parseYMD(it.date);
-                    if (isNaN(dt)) continue;
-                    if (dt >= fromDateInclusive && dt <= toDateInclusive) {
-                        if (Number(it.amount) < 0) total += Math.abs(Number(it.amount));
-                    }
-                }
-                return total;
-            }
+            form.addEventListener('submit', e => { e.preventDefault(); const entry = addEntryFromString(amountEl.value, cat1El.value, cat2El.value, dateEl.value || todayISO(), noteEl.value.trim()); if (!entry) return; amountEl.value = ''; noteEl.value = ''; render(); ensureMonthOptions(); });
 
-            function computeAndShowStats() {
-                var items = load();
-                var net = 0;
-                for (var i = 0; i < items.length; i++) net += Number(items[i].amount);
-                balanceEl.textContent = '¥' + Number(net).toLocaleString();
+            function openEdit(it) { editingId = it.id; editAmount.value = it.amount > 0 ? ('+' + Math.abs(it.amount)) : ('-' + Math.abs(it.amount)); if (it.amount >= 0) editAmount.value = '+' + Math.abs(it.amount); editDate.value = it.date; editCat1.innerHTML = cat1El.innerHTML; editCat1.value = it.cat1; editCat2.value = it.cat2; editNote.value = it.note || ''; editModal.style.display = 'flex'; }
+            cancelEdit.onclick = () => { editModal.style.display = 'none'; editingId = null; };
+            saveEdit.onclick = () => { if (!editingId) return; const items = load(); const idx = items.findIndex(i => i.id === editingId); if (idx < 0) return; const str = String(editAmount.value || '').trim(); let val; if (str.startsWith('+')) { val = Math.abs(Number(str.slice(1)) || 0); } else if (str.startsWith('-')) { val = -Math.abs(Number(str.slice(1)) || 0); } else { val = -Math.abs(Number(str) || 0); } items[idx].amount = val; items[idx].cat1 = editCat1.value; items[idx].cat2 = editCat2.value; items[idx].date = editDate.value; items[idx].note = editNote.value; save(items); render(); ensureMonthOptions(); editModal.style.display = 'none'; };
 
-                var today = new Date();
-                var monday = getMonday(today);
-                var sunday = new Date(monday);
-                sunday.setDate(monday.getDate() + 6);
-                sunday.setHours(23, 59, 59, 999);
-                var weekSum = sumExpensesBetween(items, monday, sunday);
-                weekSpentEl.textContent = '¥' + Number(weekSum).toLocaleString();
+            // CSVエクスポート
+            exportBtn.addEventListener('click', () => { const items = load(); if (!items.length) { alert('データがありません'); return; } const rows = items.map(i => `${i.date},"${(i.cat1 || '').replace(/"/g, '""')}",${i.amount},"${i.cat2}","${(i.note || '').replace(/"/g, '""')}"`); const csv = 'date,category1,amount,include2,note\n' + rows.join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'litebudget_export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
 
-                var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                startOfMonth.setHours(0, 0, 0, 0);
-                var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                endOfMonth.setHours(23, 59, 59, 999);
-                var monthSum = sumExpensesBetween(items, startOfMonth, endOfMonth);
-                monthSpentEl.textContent = '¥' + Number(monthSum).toLocaleString();
-            }
-
-            function render() {
-                var q = (searchEl.value || '').toLowerCase();
-                var items = load().slice().reverse();
-                var mf = filterMonth.value;
-                listEl.innerHTML = '';
-                var sum = 0;
-                for (var i = 0; i < items.length; i++) {
-                    var it = items[i];
-                    if (mf !== 'all' && it.date.slice(0, 7) !== mf) continue;
-                    if (q && (String(it.note || '').toLowerCase().indexOf(q) === -1) && (String(it.category || '').toLowerCase().indexOf(q) === -1)) continue;
-                    var li = document.createElement('li');
-                    var left = document.createElement('div');
-                    left.innerHTML = '<div>' + it.date + ' <span class="muted">• ' + it.category + '</span></div><div class="muted">' + (it.note || '') + '</div>';
-                    var amt = document.createElement('div');
-                    amt.className = 'amount ' + (it.amount < 0 ? 'negative' : 'positive');
-                    amt.textContent = (it.amount < 0 ? '-' : '+') + '¥' + Math.abs(parseInt(it.amount)).toLocaleString();
-                    var del = document.createElement('button');
-                    del.textContent = '削除';
-                    del.className = 'tiny';
-                    (function (id) { del.addEventListener('click', function () { remove(id); }, false); })(it.id);
-                    li.appendChild(left);
-                    var right = document.createElement('div');
-                    right.style.textAlign = 'right';
-                    right.appendChild(amt);
-                    var wrap = document.createElement('div');
-                    wrap.appendChild(del);
-                    right.appendChild(wrap);
-                    li.appendChild(right);
-                    listEl.appendChild(li);
-                    sum += Number(it.amount);
-                }
-                balanceEl.textContent = '¥' + Number(sum).toLocaleString();
-                computeAndShowStats();
-            }
-
-            function ensureMonthOptions() {
-                var items = load();
-                var months = {};
-                for (var i = 0; i < items.length; i++) {
-                    var m = (items[i].date || '').slice(0, 7);
-                    if (m) months[m] = true;
-                }
-                filterMonth.innerHTML = '<option value=\"all\">すべて</option>';
-                var arr = [];
-                for (var k in months) arr.push(k);
-                arr.sort(); arr.reverse();
-                for (var j = 0; j < arr.length; j++) {
-                    var o = document.createElement('option');
-                    o.value = arr[j]; o.textContent = arr[j];
-                    filterMonth.appendChild(o);
-                }
-            }
-
-            function addEntryFromString(amountStr, category, date, note) {
-                amountStr = (amountStr || '').trim();
-                if (!amountStr) { alert('金額を入力してください'); return null; }
-
-                let value;
-                if (amountStr.startsWith('+')) {
-                    const n = Number(amountStr.slice(1).replace(/,/g, '')); // +を除去してNumberに
-                    if (isNaN(n)) { alert('金額の形式が不正です'); return null; }
-                    value = Math.abs(n); // income as positive
-                } else if (amountStr.startsWith('-')) {
-                    const n = Number(amountStr.slice(1).replace(/,/g, ''));
-                    if (isNaN(n)) { alert('金額の形式が不正です'); return null; }
-                    value = -Math.abs(n);
-                } else {
-                    const n = Number(amountStr.replace(/,/g, ''));
-                    if (isNaN(n)) { alert('金額の形式が不正です'); return null; }
-                    value = -Math.abs(n); // default: expense
-                }
-
-                const items = load();
-                const entry = { id: Date.now() + Math.random(), amount: value, category, date, note };
-                items.push(entry);
-                save(items);
-                return entry;
-            }
-
-
-            function remove(id) {
-                var items = load().filter(function (x) { return x.id !== id; });
-                save(items);
+            // 全件クリア（修正）
+            clearBtn.addEventListener('click', () => {
+                if (!confirm('全データを削除しますか？')) return;
+                localStorage.removeItem(KEY);
                 ensureMonthOptions();
                 render();
-            }
+            });
 
-            function tryFocusAmount() {
-                try { amountEl.focus(); } catch (e) { }
-            }
-
-            window.addEventListener('load', function () { setTimeout(tryFocusAmount, 80); setTimeout(tryFocusAmount, 300); }, false);
-            function onFirstUserTouch() { tryFocusAmount(); document.removeEventListener('touchstart', onFirstUserTouch, false); document.removeEventListener('click', onFirstUserTouch, false); }
-            document.addEventListener('touchstart', onFirstUserTouch, false);
-            document.addEventListener('click', onFirstUserTouch, false);
-
-            document.addEventListener('DOMContentLoaded', function () {
-                setDefaultDate();
-                ensureMonthOptions();
-                render();
-            }, false);
-
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                var amtStr = amountEl.value;
-                if (amtStr === null || String(amtStr).trim() === '') return;
-                var dateVal = dateEl.value || todayISO();
-                var noteVal = (noteEl.value || '').trim();
-                var entry = addEntryFromString(amtStr, catEl.value, dateVal, noteVal);
-                if (!entry) return;
-                amountEl.value = '';
-                noteEl.value = '';
-                try { amountEl.focus(); } catch (e) { }
-                ensureMonthOptions();
-                render();
-            }, false);
-
-            exportBtn.addEventListener('click', function () {
-                var items = load();
-                if (!items.length) { alert('データがありません'); return; }
-                var rows = [];
-                for (var i = 0; i < items.length; i++) {
-                    var it = items[i];
-                    var cat = String(it.category || '').replace(/\"/g, '\"\"');
-                    var note = String(it.note || '').replace(/\"/g, '\"\"');
-                    rows.push(it.date + ',"' + cat + '",' + it.amount + ',"' + note + '"');
-                }
-                var csv = 'date,category,amount,note\\n' + rows.join('\\n');
-                var blob = new Blob([csv], { type: 'text/csv' });
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a'); a.href = url; a.download = 'litebudget_export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-            }, false);
-
-            clearBtn.addEventListener('click', function () { if (!confirm('全データを削除しますか？')) return; localStorage.removeItem(KEY); ensureMonthOptions(); render(); }, false);
-            filterMonth.addEventListener('change', render, false);
-            searchEl.addEventListener('input', render, false);
-
+            document.addEventListener('DOMContentLoaded', () => { dateEl.value = todayISO(); ensureMonthOptions(); render(); });
+            filterMonth.addEventListener('change', render);
+            searchEl.addEventListener('input', render);
         })();
     </script>
 </body>
