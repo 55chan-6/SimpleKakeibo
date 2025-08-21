@@ -3,369 +3,257 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>LiteBudget v2 — Shabby Chic (Refined)</title>
+    <title>LiteBudget v2</title>
     <style>
-        /* Shabby Chic refined palette: white / brown / gold / ecru / green / navy */
         :root {
-            --bg-ecru: #fbf7f0; /* 生成り */
-            --paper: #ffffff; /* 白 */
-            --ink: #2b2b2b; /* チャコール */
-            --muted: #7b6f66; /* 茶系グレー */
-            --brown: #8a6a4f; /* ウォームブラウン */
-            --gold: #c9a96a; /* アンティークゴールド */
-            --sage: #9db39a; /* 落ち着いたグリーン */
-            --navy: #21314a; /* 深いネイビー */
-
-            --radius: 14px;
-            --shadow: 0 14px 36px rgba(34,28,20,0.06);
-        }
-
-        * {
-            box-sizing: border-box
-        }
-
-        html, body {
-            height: 100%
+            font-family: system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif
         }
 
         body {
             margin: 0;
-            padding: 18px;
-            color: var(--ink);
-            background: linear-gradient(180deg,var(--bg-ecru),#fff 60%);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-            -webkit-font-smoothing: antialiased;
+            padding: 12px;
+            background: #f7f7f8;
+            color: #111;
+            width: 370px;
         }
 
-        /* Appbar */
-        .appbar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            margin: -8px -8px 14px -8px;
-            padding: 14px;
-            border-radius: 18px;
-            background: linear-gradient(180deg,#fffefb,#fff9f3);
-            border: 1px solid rgba(138,106,79,0.08);
-            box-shadow: var(--shadow)
-        }
-
-        .appbar-inner {
+        header {
             display: flex;
             flex-direction: column;
-            gap: 6px
+            gap: 4px;
+            margin-bottom: 8px;
         }
 
-        .title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--navy)
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            background: linear-gradient(180deg,#fff,#f7efe6);
-            border: 1px solid rgba(138,106,79,0.12);
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03)
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--muted)
-        }
-
-        /* Layout */
-        .grid {
-            display: grid;
-            gap: 14px
+        h1 {
+            font-size: 18px;
+            margin: 0
         }
 
         .card {
-            background: var(--paper);
-            border: 1px solid rgba(138,106,79,0.06);
-            border-radius: var(--radius);
-            padding: 14px;
-            box-shadow: var(--shadow)
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 8px
         }
 
-        h3 {
-            margin: 0 0 10px 0;
-            font-size: 15px;
-            color: var(--navy)
-        }
-
-        /* Stats */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3,minmax(0,1fr));
-            gap: 10px
-        }
-
-        .stat {
-            padding: 12px;
-            border-radius: 12px;
-            background: linear-gradient(180deg,#fff,#fffaf4);
-            border: 1px solid rgba(138,106,79,0.04)
-        }
-
-        .label {
-            font-size: 12px;
-            color: var(--muted)
-        }
-
-        .value {
+        label {
+            font-size: 13px;
+            display: block;
             margin-top: 6px;
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--navy)
-        }
-
-            .value.gold {
-                color: var(--gold)
-            }
-
-        /* Form */
-        .row {
-            display: flex;
-            gap: 8px;
-            align-items: center
+            text-align:center;
         }
 
         input, select, button, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid rgba(138,106,79,0.06);
-            border-radius: 12px;
-            font-size: 15px;
-            background: var(--paper)
+            width: 95%;
+            padding: 8px;
+            border: 1px solid #e2e2e5;
+            border-radius: 8px;
+            font-size: 15px
         }
 
-            input:focus, select:focus, button:focus {
-                outline: 2px solid rgba(146,120,95,0.15);
-                outline-offset: 1px
-            }
-
-        .plus-btn {
-            flex: 0 0 auto;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: linear-gradient(180deg,#fff,#f6efe3);
-            border: 1px solid rgba(138,106,79,0.06);
-            font-size: 18px
-        }
-
-        .actions {
+        .row {
             display: flex;
-            gap: 8px;
-            margin-top: 10px
+            gap: 8px
         }
 
-        .btn {
-            cursor: pointer;
-            padding: 10px 12px;
-            border-radius: 10px
-        }
-
-            .btn.primary {
-                background: linear-gradient(180deg,var(--brown),#a57a57);
-                color: #fff;
-                border: none
+            .row > * {
+                flex: 1
             }
 
-            .btn.ghost {
-                background: transparent;
-                border: 1px solid rgba(138,106,79,0.06)
-            }
-
-        .tiny {
-            font-size: 12px
-        }
-
-        /* List */
         ul {
             list-style: none;
-            margin: 0;
-            padding: 0
+            padding: 0;
+            margin: 0
         }
 
         li {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid rgba(138,106,79,0.04);
-            background: linear-gradient(180deg,#fff,#fffaf6)
-        }
-
-            li + li {
-                margin-top: 8px
-            }
-
-        .amount {
-            font-weight: 800
-        }
-
-        .negative {
-            color: #a23b4b
-        }
-
-        .positive {
-            color: #2e7d52
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f2;
+            cursor: pointer
         }
 
         .muted {
-            font-size: 13px;
-            color: var(--muted)
+            font-size: 12px;
+            color: #666
         }
 
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 13px;
-            border: 1px solid rgba(138,106,79,0.06);
-            background: linear-gradient(180deg,#fff,#fff8f2)
+        .btn {
+            cursor: pointer
         }
 
-            .chip[data-cat="食費"] {
-                border-color: rgba(146,120,95,0.08)
-            }
-
-            .chip[data-cat="交通"] {
-                border-color: rgba(131,160,188,0.08)
-            }
-
-            .chip[data-cat="日用品"] {
-                border-color: rgba(143,168,144,0.08)
-            }
-
-            .chip[data-cat="医療費"] {
-                border-color: rgba(153,130,162,0.08)
-            }
-
-            .chip[data-cat="収入"] {
-                border-color: rgba(214,183,113,0.08)
-            }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(18,16,14,0.35);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px
-        }
-
-        .modal-content {
-            background: var(--paper);
-            border-radius: 16px;
-            padding: 16px;
-            width: min(420px,100%);
-            box-shadow: 0 18px 40px rgba(28,22,16,0.08);
-            border: 1px solid rgba(138,106,79,0.06)
-        }
-
-            .modal-content h3 {
-                margin: 0 0 8px 0;
-                color: var(--navy)
-            }
-
-        /* Utilities */
         .controls {
             display: flex;
             gap: 8px
         }
+
+        .tiny {
+            font-size: 12px;
+            padding: 6px
+        }
+
+        .amount {
+            font-weight: 700
+        }
+
+        .negative {
+            color: #c94242
+        }
+
+        .positive {
+            color: #2a9d40
+        }
+
+        .stats {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .stat {
+            background: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            width: 33%;
+            text-align: center;
+        }
+
+        .label {
+            font-size: 12px;
+            color: #666
+        }
+
+        .plus-btn {
+            padding: 6px 10px;
+            font-size: 18px;
+            border-radius: 8px
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 16px;
+            border-radius: 10px;
+            max-width: 320px;
+            width: 90%;
+            text-align:center;
+        }
     </style>
 </head>
 <body>
-    <div class="appbar">
-        <div class="appbar-inner">
-            <div class="title"><div class="logo">🌿</div>LiteBudget <span style="font-weight:700;color:var(--brown)">Shabby</span></div>
-            <div class="subtitle">白・ブラウン・ゴールド・生成り・グリーン・ネイビーを組み合わせた上品なシャビーシック風デザイン</div>
+    <header>
+        <div class="stats">
+            <div class="stat">
+                <div class="label">今週の支出</div>
+                <div id="weekSpentInc">¥0</div>
+            </div>
+            <div class="stat">
+                <div class="label">今月の支出</div>
+                <div id="monthSpentInc">¥0</div>
+            </div>
+            <div class="stat">
+                <div class="label">残高</div>
+                <div id="balanceInc">¥0</div>
+            </div>
         </div>
-    </div>
-
-    <div class="grid">
-        <section class="card">
-            <div class="stats">
-                <div class="stat"><div class="label">今週の支出 (含むのみ)</div><div id="weekSpentInc" class="value">¥0</div></div>
-                <div class="stat"><div class="label">今月の支出 (含むのみ)</div><div id="monthSpentInc" class="value">¥0</div></div>
-                <div class="stat"><div class="label">残高 (含むのみ)</div><div id="balanceInc" class="value gold">¥0</div></div>
+        <div class="stats">
+            <div class="stat">
+                <div class="label">必要経費込</div>
+                <div id="weekSpentAll">¥0</div>
             </div>
-            <div class="stats" style="margin-top:10px">
-                <div class="stat"><div class="label">今週の支出 (全データ)</div><div id="weekSpentAll" class="value">¥0</div></div>
-                <div class="stat"><div class="label">今月の支出 (全データ)</div><div id="monthSpentAll" class="value">¥0</div></div>
-                <div class="stat"><div class="label">残高 (全データ)</div><div id="balanceAll" class="value">¥0</div></div>
+            <div class="stat">
+                <div class="label">必要経費込</div>
+                <div id="monthSpentAll">¥0</div>
             </div>
-        </section>
-
-        <section class="card">
-            <h3>入力</h3>
-            <form id="entryForm" autocomplete="off">
-                <div class="row">
-                    <input id="amount" name="amount" type="text" inputmode="numeric" placeholder="例：500 または +2000" autocomplete="off" autofocus required />
-                    <button type="button" id="plusBtn" class="plus-btn">＋</button>
-                    <select id="category1">
-                        <option value="食費">食費</option>
-                        <option value="交通">交通</option>
-                        <option value="日用品">日用品</option>
-                        <option value="医療費">医療費</option>
-                        <option value="収入">収入</option>
-                        <option value="その他">その他</option>
-                    </select>
-                    <select id="category2">
-                        <option value="含む">含む</option>
-                        <option value="含まない">含まない</option>
-                    </select>
-                </div>
-                <label style="margin-top:8px"><input type="date" id="date" /> <span class="muted">日付</span></label>
-                <label><input id="note" placeholder="メモ（任意）" /></label>
-                <div class="actions">
-                    <button type="submit" class="btn primary">追加</button>
-                    <button type="button" id="exportBtn" class="btn ghost tiny">CSVエクスポート</button>
-                    <button type="button" id="clearBtn" class="btn ghost tiny">全件クリア</button>
-                </div>
-            </form>
-        </section>
-
-        <section class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <h3>直近の記録</h3>
-                <div class="controls">
-                    <select id="filterMonth" class="tiny"><option value="all">すべて</option></select>
-                    <input id="search" placeholder="検索" class="tiny" style="width:140px" />
-                </div>
+            <div class="stat">
+                <div class="label">必要経費込</div>
+                <div id="balanceAll">¥0</div>
             </div>
-            <ul id="list"></ul>
-        </section>
-    </div>
+        </div>
+    </header>
+
+    <section class="card">
+        <form id="entryForm" autocomplete="off">
+            <div class="row" style="align-items:center">
+                <table>
+                    <tr>
+                        <th width="30%">
+                            <input id="amount" name="amount" type="text" inputmode="numeric" placeholder="金額" autocomplete="off" autofocus required />
+                        </th>
+                        <th width="10%" style="padding-left:15px;">
+                            <button type="button" id="plusBtn" class="plus-btn">＋</button>
+                        </th>
+                        <th>
+                            <select id="category1">
+                                <option value="食費">食費</option>
+                                <option value="日用品">日用品</option>
+                                <option value="娯楽品">娯楽品</option>
+                                <option value="不要欲購">不要欲購</option>
+                                <option value="医療費">医療費</option>
+                                <option value="収入">収入</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </th>
+                        <th>
+                            <select id="category2">
+                                <option value="含む">含む</option>
+                                <option value="含まない">含まない</option>
+                            </select>
+                        </th>
+                    </tr>
+                </table>
+            </div>
+            <label><input type="date" id="date" /> <span class="muted"></span></label>
+            <label><input id="note" placeholder="メモ（任意）" /></label>
+            <div style="display:flex;gap:8px;margin-top:8px">
+                <button type="submit" class="btn">追加</button>
+                <button type="button" id="exportBtn" class="btn tiny">CSV出力</button>
+                <button type="button" id="clearBtn" class="btn tiny">全件クリア</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong>直近の記録</strong>
+            <div class="controls">
+                <select id="filterMonth" class="tiny"><option value="all">すべて</option></select>
+                <input id="search" placeholder="検索" class="tiny" style="width:120px" />
+            </div>
+        </div>
+        <ul id="list"></ul>
+    </section>
 
     <!-- 編集モーダル -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h3>記録を編集</h3>
-            <div class="grid" style="gap:8px">
-                <input id="editAmount" type="text" inputmode="numeric" />
-                <input id="editDate" type="date" />
-                <select id="editCat1"></select>
-                <select id="editCat2"><option value="含む">含む</option><option value="含まない">含まない</option></select>
-                <input id="editNote" placeholder="メモ" />
-                <div class="actions">
-                    <button id="saveEdit" class="btn primary">保存</button>
-                    <button id="cancelEdit" class="btn ghost">キャンセル</button>
-                </div>
+            <input id="editAmount" type="text" inputmode="numeric" />
+            <input id="editDate" type="date" />
+            <select id="editCat1"></select>
+            <select id="editCat2">
+                <option value="含む">含む</option>
+                <option value="含まない">含まない</option>
+            </select>
+            <input id="editNote" placeholder="メモ" />
+            <div style="margin-top:8px;display:flex;gap:8px">
+                <button id="saveEdit" class="btn">保存</button>
+                <button id="cancelEdit" class="btn">キャンセル</button>
             </div>
         </div>
     </div>
@@ -379,6 +267,7 @@
             const cat1El = document.getElementById('category1');
             const cat2El = document.getElementById('category2');
             const dateEl = document.getElementById('date');
+            const noteEl = document.getElementById('note');
             const listEl = document.getElementById('list');
             const weekSpentInc = document.getElementById('weekSpentInc');
             const monthSpentInc = document.getElementById('monthSpentInc');
@@ -401,37 +290,63 @@
             const cancelEdit = document.getElementById('cancelEdit');
             let editingId = null;
 
-            // 医療費選択時はデフォで「含まない」
-            cat1El.addEventListener('change', () => { if (cat1El.value === '医療費') { cat2El.value = '含まない'; } });
+            // category1が医療費ならcategory2を含まないに自動設定（その他は含むのまま）
+            cat1El.addEventListener('change', () => {
+                if (cat1El.value === '医療費') {
+                    cat2El.value = '含まない';
+                }
+            });
 
-            plusBtn.addEventListener('click', () => { if (!amountEl.value.startsWith('+')) amountEl.value = '+' + amountEl.value; amountEl.focus(); });
+            plusBtn.addEventListener('click', () => {
+                if (!amountEl.value.startsWith('+')) amountEl.value = '+' + amountEl.value;
+                amountEl.focus();
+            });
 
-            function todayISO() { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+            function todayISO() {
+                const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                return d.toISOString().slice(0, 10);
+            }
+
             function load() { try { return JSON.parse(localStorage.getItem(KEY) || '[]') } catch (e) { return [] } }
             function save(items) { localStorage.setItem(KEY, JSON.stringify(items)) }
             function parseYMD(ymd) { const [y, m, d] = (ymd || '').split('-').map(Number); return new Date(y, m - 1, d) }
 
             function getMonday(d) { const day = d.getDay(); const diff = (day === 0 ? -6 : 1) - day; const m = new Date(d); m.setDate(d.getDate() + diff); m.setHours(0, 0, 0, 0); return m; }
             function sumBetween(items, from, to, onlyInc) { let t = 0; for (const it of items) { const dt = parseYMD(it.date); if (isNaN(dt)) continue; if (dt >= from && dt <= to) { if (Number(it.amount) < 0) { if (!onlyInc || it.cat2 === '含む') t += Math.abs(Number(it.amount)); } } } return t; }
-            function computeStats() { const items = load(); const netAll = items.reduce((s, i) => s + Number(i.amount), 0); const netInc = items.reduce((s, i) => s + (i.cat2 === '含む' ? Number(i.amount) : 0), 0); balanceAll.textContent = '¥' + netAll.toLocaleString(); balanceInc.textContent = '¥' + netInc.toLocaleString(); const today = new Date(); const mon = getMonday(today); const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23, 59, 59, 999); weekSpentAll.textContent = '¥' + sumBetween(items, mon, sun, false).toLocaleString(); weekSpentInc.textContent = '¥' + sumBetween(items, mon, sun, true).toLocaleString(); const sm = new Date(today.getFullYear(), today.getMonth(), 1); sm.setHours(0, 0, 0, 0); const em = new Date(today.getFullYear(), today.getMonth() + 1, 0); em.setHours(23, 59, 59, 999); monthSpentAll.textContent = '¥' + sumBetween(items, sm, em, false).toLocaleString(); monthSpentInc.textContent = '¥' + sumBetween(items, sm, em, true).toLocaleString(); }
+            function computeStats() {
+                const items = load(); const netAll = items.reduce((s, i) => s + Number(i.amount), 0); const netInc = items.reduce((s, i) => s + (i.cat2 === '含む' ? Number(i.amount) : 0), 0);
+                balanceAll.textContent = '¥' + netAll.toLocaleString(); balanceInc.textContent = '¥' + netInc.toLocaleString();
+                const today = new Date(); const mon = getMonday(today); const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23, 59, 59, 999);
+                weekSpentAll.textContent = '¥' + sumBetween(items, mon, sun, false).toLocaleString();
+                weekSpentInc.textContent = '¥' + sumBetween(items, mon, sun, true).toLocaleString();
+                const sm = new Date(today.getFullYear(), today.getMonth(), 1); sm.setHours(0, 0, 0, 0);
+                const em = new Date(today.getFullYear(), today.getMonth() + 1, 0); em.setHours(23, 59, 59, 999);
+                monthSpentAll.textContent = '¥' + sumBetween(items, sm, em, false).toLocaleString();
+                monthSpentInc.textContent = '¥' + sumBetween(items, sm, em, true).toLocaleString();
+            }
 
-            function render() { const q = (searchEl.value || '').toLowerCase(); const items = load().slice().reverse(); listEl.innerHTML = ''; for (const it of items) { if (filterMonth.value !== 'all' && it.date.slice(0, 7) !== filterMonth.value) continue; if (q && !((it.note || '').toLowerCase().includes(q) || it.cat1.toLowerCase().includes(q))) continue; const li = document.createElement('li'); const left = document.createElement('div'); left.innerHTML = `<div>${it.date} <span class="chip" data-cat="${it.cat1}">🌿 ${it.cat1} <small>/${it.cat2}</small></span></div><div class="muted">${it.note || ''}</div>`; const amt = document.createElement('div'); amt.className = 'amount ' + (it.amount < 0 ? 'negative' : 'positive'); amt.textContent = (it.amount < 0 ? '-' : '+') + '¥' + Math.abs(it.amount).toLocaleString(); li.appendChild(left); li.appendChild(amt); li.onclick = () => openEdit(it); listEl.appendChild(li); } computeStats(); }
+            function render() { const q = (searchEl.value || '').toLowerCase(); const items = load().slice().reverse(); listEl.innerHTML = ''; for (const it of items) { if (filterMonth.value !== 'all' && it.date.slice(0, 7) !== filterMonth.value) continue; if (q && !((it.note || '').toLowerCase().includes(q) || it.cat1.toLowerCase().includes(q))) continue; const li = document.createElement('li'); li.innerHTML = `<div>${it.date} <span class="muted">• ${it.cat1}/${it.cat2}</span><div class="muted">${it.note || ''}</div></div><div class="amount ${it.amount < 0 ? 'negative' : 'positive'}">${it.amount < 0 ? '-' : '+'}¥${Math.abs(it.amount).toLocaleString()}</div>`; li.onclick = () => openEdit(it); listEl.appendChild(li); } computeStats(); }
 
             function ensureMonthOptions() { const items = load(); const months = new Set(items.map(i => i.date.slice(0, 7))); filterMonth.innerHTML = '<option value="all">すべて</option>'; Array.from(months).sort().reverse().forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; filterMonth.appendChild(o) }); }
 
-            function addEntryFromString(amountStr, cat1, cat2, date, note) { amountStr = (amountStr || '').trim(); if (!amountStr) { alert('金額を入力してください'); return null } let v; if (amountStr.startsWith('+')) { const n = Number(amountStr.slice(1)); if (isNaN(n)) return null; v = Math.abs(n); } else if (amountStr.startsWith('-')) { const n = Number(amountStr.slice(1)); if (isNaN(n)) return null; v = -Math.abs(n); } else { const n = Number(amountStr); if (isNaN(n)) return null; v = -Math.abs(n); } const items = load(); const entry = { id: Date.now() + Math.random(), amount: v, cat1, cat2, date: date || todayISO(), note }; items.push(entry); save(items); return entry; }
+            function addEntryFromString(amountStr, cat1, cat2, date, note) { amountStr = (amountStr || '').trim(); if (!amountStr) { alert('金額を入力してください'); return null } let v; if (amountStr.startsWith('+')) { const n = Number(amountStr.slice(1)); if (isNaN(n)) return null; v = Math.abs(n); } else if (amountStr.startsWith('-')) { const n = Number(amountStr.slice(1)); if (isNaN(n)) return null; v = -Math.abs(n); } else { const n = Number(amountStr); if (isNaN(n)) return null; v = -Math.abs(n); } const items = load(); const entry = { id: Date.now() + Math.random(), amount: v, cat1, cat2, date, note }; items.push(entry); save(items); return entry; }
 
-            form.addEventListener('submit', e => { e.preventDefault(); const entry = addEntryFromString(amountEl.value, cat1El.value, cat2El.value, dateEl.value || todayISO(), document.getElementById('note').value.trim()); if (!entry) return; amountEl.value = ''; document.getElementById('note').value = ''; render(); ensureMonthOptions(); });
+            form.addEventListener('submit', e => { e.preventDefault(); const entry = addEntryFromString(amountEl.value, cat1El.value, cat2El.value, dateEl.value || todayISO(), noteEl.value.trim()); if (!entry) return; amountEl.value = ''; noteEl.value = ''; render(); ensureMonthOptions(); });
 
-            function openEdit(it) { editingId = it.id; editAmount.value = it.amount >= 0 ? ('+' + Math.abs(it.amount)) : ('-' + Math.abs(it.amount)); editDate.value = it.date; editCat1.innerHTML = cat1El.innerHTML; editCat1.value = it.cat1; editCat2.value = it.cat2; editNote.value = it.note || ''; editModal.style.display = 'flex'; }
+            function openEdit(it) { editingId = it.id; editAmount.value = it.amount > 0 ? ('+' + Math.abs(it.amount)) : ('-' + Math.abs(it.amount)); if (it.amount >= 0) editAmount.value = '+' + Math.abs(it.amount); editDate.value = it.date; editCat1.innerHTML = cat1El.innerHTML; editCat1.value = it.cat1; editCat2.value = it.cat2; editNote.value = it.note || ''; editModal.style.display = 'flex'; }
             cancelEdit.onclick = () => { editModal.style.display = 'none'; editingId = null; };
             saveEdit.onclick = () => { if (!editingId) return; const items = load(); const idx = items.findIndex(i => i.id === editingId); if (idx < 0) return; const str = String(editAmount.value || '').trim(); let val; if (str.startsWith('+')) { val = Math.abs(Number(str.slice(1)) || 0); } else if (str.startsWith('-')) { val = -Math.abs(Number(str.slice(1)) || 0); } else { val = -Math.abs(Number(str) || 0); } items[idx].amount = val; items[idx].cat1 = editCat1.value; items[idx].cat2 = editCat2.value; items[idx].date = editDate.value; items[idx].note = editNote.value; save(items); render(); ensureMonthOptions(); editModal.style.display = 'none'; };
 
             // CSVエクスポート
             exportBtn.addEventListener('click', () => { const items = load(); if (!items.length) { alert('データがありません'); return; } const rows = items.map(i => `${i.date},"${(i.cat1 || '').replace(/"/g, '""')}",${i.amount},"${i.cat2}","${(i.note || '').replace(/"/g, '""')}"`); const csv = 'date,category1,amount,include2,note\n' + rows.join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'litebudget_export.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
 
-            // 全件クリア
-            clearBtn.addEventListener('click', () => { if (!confirm('全データを削除しますか？')) return; localStorage.removeItem(KEY); ensureMonthOptions(); render(); });
+            // 全件クリア（修正）
+            clearBtn.addEventListener('click', () => {
+                if (!confirm('全データを削除しますか？')) return;
+                localStorage.removeItem(KEY);
+                ensureMonthOptions();
+                render();
+            });
 
             document.addEventListener('DOMContentLoaded', () => { dateEl.value = todayISO(); ensureMonthOptions(); render(); });
             filterMonth.addEventListener('change', render);
@@ -439,4 +354,4 @@
         })();
     </script>
 </body>
-<
+</html>
